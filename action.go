@@ -34,6 +34,10 @@ func (mw *MyMainWindow) check() error {
 	if err != nil {
 		return err
 	}
+	err = mw.checkCmake()
+	if err != nil {
+		return err
+	}
 	mw.cfg.IsCheck = true
 	mw.cfg.save()
 	mw.checkButton.SetEnabled(false)
@@ -101,6 +105,17 @@ func (mw *MyMainWindow) checkPythonVersion() error {
 	}
 
 	mw.log("Python のバージョンチェック完了。問題ありません。")
+	return nil
+}
+
+func (mw *MyMainWindow) checkCmake() error {
+	_, err := exec.LookPath("cmake")
+	if err != nil {
+		slog.Error("CMake が PATH に見つかりません")
+		mw.logToUI("CMake が PATH に見つかりません")
+		return err
+	}
+	mw.log("CMake がインストールされています")
 	return nil
 }
 
