@@ -16,6 +16,10 @@ This Program is installer for [zundamon-speech-webui](https://github.com/zunzun9
 
 - Windows
 - Go 1.24.0
+- Git
+- Python 3.9 - 3.11
+- CMake
+- VisualStudio (Community)
 
 ## Installation
 
