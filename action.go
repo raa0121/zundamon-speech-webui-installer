@@ -216,7 +216,18 @@ func (mw *MyMainWindow) installPythonDependencies(pythonPath string) error {
 	if err != nil {
 		return err
 	}
-	_, err = mw.execCommand(repoDir, pythonPath, "-m", "pip", "install", "-r", "requirements-torch.txt")
+	_, err = mw.execCommand(
+		repoDir,
+		pythonPath,
+		"-m",
+		"pip",
+		"install",
+		"torch==2.1.2",
+		"torchvision==0.16.2",
+		"torchaudio==2.1.2",
+		"--index-url",
+		"https://download.pytorch.org/whl/cu121",
+	)
 	if err != nil {
 		return err
 	}
