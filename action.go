@@ -195,6 +195,10 @@ func (mw *MyMainWindow) updateOrCloneRepo(path, repoURL string) error {
 		return err
 	}
 	_, err := mw.execCommand(configDir, mw.cfg.GitPath, "clone", repoURL, path)
+	if err != nil {
+		return err
+	}
+	_, err = mw.execCommand(path, mw.cfg.GitPath, "submodule", "update", "--init")
 	return err
 
 }
