@@ -30,7 +30,7 @@ jobs:
       - name: Build Binary
         run: |
           go mod tidy
-          go build -o zundamon-speech-webui-installer.exe
+          go build -o zundamon-speech-webui-installer.exe -ldflags "-H windowsgui" .
 
       - name: Archive Binary
         shell: pwsh
