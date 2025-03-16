@@ -1,0 +1,65 @@
+name: Build and Release Go App (Windows)
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    outputs:
+      zip_name: ${{ steps.get_version.outputs.ZIP_NAME }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Get Version
+        id: get_version
+        shell: pwsh
+        run: |
+          "ZIP_NAME=zundamon-speech-webui-installer-${{ github.ref_name }}.zip" >> $env:GITHUB_OUTPUT
+
+      - name: Build Binary
+        run: |
+          go mod tidy
+          go build -o zundamon-speech-webui-installer.exe
+
+      - name: Archive Binary
+        shell: pwsh
+        run: |
+          $zipName = "${{ steps.get_version.outputs.zip_name }}"
+          echo "Archiving as $zipName"
+          Compress-Archive -Path zundamon-speech-webui-installer.exe -DestinationPath $zipName
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zundamon-speech-webui-installer-windows
+          path: ${{ steps.get_version.outputs.zip_name }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: zundamon-speech-webui-installer-windows
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ needs.build.outputs.zip_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
