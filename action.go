@@ -152,6 +152,7 @@ func (mw *MyMainWindow) setup() error {
 				func() error { return mw.updateOrCloneRepo(fineTunedModelsPath, "https://huggingface.co/zunzunpj/zundamon_GPT-SoVITS") },
 			},
 			{"ファインチューニング済みモデルをコピー中...", mw.copyFineTunedModels},
+			{"streamlit の初回設定中...", mw.createStreamlitCredentials},
 		}
 
 		for _, step := range steps {
@@ -316,6 +317,30 @@ func (mw *MyMainWindow) copyFineTunedModels() error {
 		return err
 	}
 	return os.CopyFS(destSoVITS, os.DirFS(srcSoVITS))
+}
+
+func (mw *MyMainWindow) createStreamlitCredentials() error {
+	userProfile, err := os.UserHomeDir()
+	if err != nil {
+		return fmt.Errorf("ユーザープロファイルの取得に失敗しました: %w", err)
+	}
+
+	configPath := filepath.Join(userProfile, ".streamlit", "credentials.toml")
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(filepath.Dir(configPath), 0755); err != nil {
+			return fmt.Errorf("ディレクトリ作成に失敗しました: %w", err)
+		}
+		file, err := os.Create(configPath)
+		if err != nil {
+			return fmt.Errorf("ファイル作成に失敗しました: %w", err)
+		}
+		defer file.Close()
+
+		if _, err := file.WriteString("[general]\r\nemail = \"\"\r\n"); err != nil {
+			return fmt.Errorf("ファイル書き込みに失敗しました: %w", err)
+		}
+	}
+	return nil
 }
 
 func saveUnZipFile(destDir string, f zip.File) error {
